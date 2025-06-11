@@ -85,7 +85,7 @@ def solve_and_plot_trajcetories(start_values, omega, kryss_targets, *args):
     Returns
         - Plots for each vorticity
     '''
-    plt.figure(figsize=(11, 7))
+    plt.figure(figsize=(12, 8))
 
     for X0, Y0 in start_values:
         line_color = color_map_combo[(X0, Y0)]
@@ -101,7 +101,6 @@ def solve_and_plot_trajcetories(start_values, omega, kryss_targets, *args):
     plt.xlim(-lambda_*0.75, lambda_*1.75)
     plt.ylim(0, h+0.25)
     plt.grid()
-    plt.legend(fontsize=8, markerscale=0.5)
     plt.tight_layout()
     plt.savefig(f'phase_portrait_omega_{omega}.pdf', dpi=300, bbox_inches='tight')
     plt.show()
@@ -169,19 +168,15 @@ def vorticity_trajectories(omega_range):
     plt.figure(figsize=(12, 8))
     for omega in omega_range:
         if omega <= -25:
-            y_vals = np.linspace(0.05, 0.25, 2)
-        elif omega <= -20:
-            y_vals = np.linspace(0.15, 0.35, 2)
-        elif omega <= -15:
-            y_vals = np.linspace(0.25, 0.45, 2)
+            y_vals = np.linspace(0.05, 0.45, 5)
         elif omega <= -10:
-            y_vals = np.linspace(0.35, 0.55, 2)
+            y_vals = np.linspace(0.25, 0.65, 5)
         elif omega <= -5:
-            y_vals = np.linspace(0.45, 0.65, 2)
+            y_vals = np.linspace(0.45, 0.85, 5)
         elif omega <= 0:
-            y_vals = np.linspace(0.55, 0.8, 2)
+            y_vals = np.linspace(0.65, 0.95, 5)
         else:
-            y_vals = np.linspace(0.7, h, 2)
+            y_vals = np.linspace(0.85, h, 5)
 
         current_start_values = [(2, y0) for y0 in y_vals]
     
@@ -199,15 +194,14 @@ def vorticity_trajectories(omega_range):
     plt.xlim(-np.pi, np.pi)
     plt.ylim(0, h + 0.2)
     plt.grid()
-    plt.legend(fontsize=7)
     plt.tight_layout()
     plt.savefig('all_vorticities_custom_startvalues.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 
 # -------- INITIAL CONDITIONS --------------
-start_values = [(x0, y0) for x0 in np.linspace(0, lambda_, 10) for y0 in np.linspace(0.1, h, 10)]
-start_values_crossings = [(x0, y0) for x0 in np.linspace(0, lambda_, 50) for y0 in np.linspace(0.1, h, 50)]
+start_values = [(x0, y0) for x0 in np.linspace(0, lambda_, 8) for y0 in np.linspace(0.1, h, 8)]
+start_values_crossings = [(x0, y0) for x0 in np.linspace(0, lambda_, 75) for y0 in np.linspace(0.1, h, 75)]
 cross_targets = [0, np.pi/2, np.pi]
 
 poincare_colors = {cross_targets[0]: 'red', cross_targets[1]: 'blue', cross_targets[2]: 'green'}
