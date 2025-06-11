@@ -18,7 +18,14 @@ t_eval = np.linspace(0, 20, 1000)
 
 # --------------- FUNCTIONS -------------
 def compute_Ak(k_mode, c, h, g, lambda_, omega, s):
-    '''Compute the second-order Fourier coefficients for a given mode.'''
+    '''
+    Compute the second-order Fourier coefficients
+    Input 
+        - k_mode: Fourier mode
+        - omega: constant vorticity
+    Returns 
+        - (first_term + second_term): Fourier coefficient
+    '''
     if abs(k_mode) != 2:
         return 0
     
@@ -38,7 +45,15 @@ def compute_Ak(k_mode, c, h, g, lambda_, omega, s):
     return Ak
 
 def full_system_transformed(pos, omega, a, k, h, f, lambda_, g, A_k_dict):
-    '''Defines the full ODE system in a moving reference fram including both first- and second-order effects.'''
+    '''
+    Defines the full ODE system in a moving reference frame
+    Input
+        - position: [X, Y] particle position
+        - omega: constant vorticity
+        - Ak_dict: dictionary of Fourier modes
+    Returns
+        - [dX, dY]: time derivatives of positions
+    '''
     X, Y = pos  
     sqrt_gh = np.sqrt(g * h)
     A0 = a * (f + k * h * omega) / np.sinh(k * h)
@@ -61,7 +76,15 @@ def full_system_transformed(pos, omega, a, k, h, f, lambda_, g, A_k_dict):
     return [dX, dY]
 
 def solve_and_plot_trajcetories(start_values, omega, kryss_targets, *args):
-    '''Solves the ODE system, plots resulting trajcetories and marks the Poincaré crossings'''
+    '''
+    Solves the ODE system and plots resulting trajectories
+    Input
+        - start_values: (X0, Y0) list of starting particle position
+        - omega: constant vorticity
+        - Ak_dict: dictionary of Fourier modes
+    Returns
+        - Plots for each vorticity
+    '''
     plt.figure(figsize=(11, 7))
 
     for X0, Y0 in start_values:
@@ -84,7 +107,16 @@ def solve_and_plot_trajcetories(start_values, omega, kryss_targets, *args):
     plt.show()
 
 def plot_poincare_crossings(start_values, omega, kryss_targets, A_k_dict, poincare_colors):
-    '''Solves trajectories and plots Poincaré crossings per target for a given ω.'''
+    '''
+    Finds and plots the Poincaré crossings 
+    Input
+        - start_values: (X0, Y0) list of starting particle position
+        - omega: constant vorticity
+        - cross_targets: list of X values for detecting crossings
+        - Ak_dict: dictionary of Fourier modes
+    Returns
+        - Plot of Poincaré crossing for each vorticity
+    '''
     summary = {target: {'Y0': [], 'Y_cross': []} for target in kryss_targets}
 
     for X0, Y0 in start_values:
@@ -126,6 +158,13 @@ def plot_poincare_crossings(start_values, omega, kryss_targets, A_k_dict, poinca
     plt.close(fig)
 
 def vorticity_trajectories(omega_range):
+    '''
+    Solves the system for many vorticities and plots the trajectories
+    Input
+        - omega_range: list of  vorticity values
+    Returns 
+        - Plot of trajectories with varying vorticities
+    '''
 
     plt.figure(figsize=(12, 8))
     for omega in omega_range:
@@ -144,9 +183,7 @@ def vorticity_trajectories(omega_range):
         else:
             y_vals = np.linspace(0.7, h, 2)
 
-        current_start_values_dict = {}
         current_start_values = [(2, y0) for y0 in y_vals]
-        current_start_values_dict[omega] = start_values
     
         for X0, Y0 in current_start_values:
             sol = solve_ivp(lambda t, y: full_system_transformed(y, omega, a, k, h, f, lambda_, g, A_k_dict),
