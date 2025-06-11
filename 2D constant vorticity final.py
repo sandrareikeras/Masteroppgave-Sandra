@@ -206,8 +206,8 @@ def vorticity_trajectories(omega_range):
 
 
 # -------- INITIAL CONDITIONS --------------
-start_values = [(x0, y0) for x0 in np.linspace(0, lambda_, 2) for y0 in np.linspace(0.1, h, 3)]
-start_values_crossings = [(x0, y0) for x0 in np.linspace(0, lambda_, 5) for y0 in np.linspace(0.1, h, 5)]
+start_values = [(x0, y0) for x0 in np.linspace(0, lambda_, 10) for y0 in np.linspace(0.1, h, 10)]
+start_values_crossings = [(x0, y0) for x0 in np.linspace(0, lambda_, 50) for y0 in np.linspace(0.1, h, 50)]
 cross_targets = [0, np.pi/2, np.pi]
 
 poincare_colors = {cross_targets[0]: 'red', cross_targets[1]: 'blue', cross_targets[2]: 'green'}
