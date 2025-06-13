@@ -231,7 +231,6 @@ def analyze_trajectory(sol):
     z_traj = trajectory[2]
 
 
-
 def plot_mod2pi_trajectory(sol, n_points=2000):
     '''
     Plot the particle trajectory with modulo 2π 
@@ -299,42 +298,97 @@ def plot_mod2pi_trajectory(sol, n_points=2000):
     plt.show()
 
 
+def find_poincare_crossings(sol, n_points=20000):
+    '''
+    Find (x,z) points where y ≡ 0 mod 2π (Poincaré section)
+    Input:
+        - sol: trajectory solution from solve_ivp
+        - n_points: number of time points to sample
+    Returns:
+        - x_crossings: array of x (mod 2π) at crossings
+        - z_crossings: array of z at crossings
+    '''
+    t_eval = np.linspace(sol.t[0], sol.t[-1], n_points)
+    traj = sol.sol(t_eval)
+    
+    x, y, z = traj[0], traj[1], traj[2]
+    
+    # Apply mod 2π to y
+    y_mod = np.mod(y, 2*np.pi)
+    
+    # Define crossings: detect zero crossings of y_mod near 0 or 2π
+    crossings = []
+    for i in range(1, len(y_mod)):
+        if (y_mod[i-1] > np.pi and y_mod[i] < np.pi) and (y[i] > y[i-1]):   # Only capture crossings of particles moving downwards
+            # Linear interpolation
+            t1, t2 = t_eval[i-1], t_eval[i]
+            y1, y2 = y_mod[i-1], y_mod[i]
+            frac = (0 - y1) / (y2 - y1)
+            x_cross = x[i-1] + frac * (x[i] - x[i-1])
+            z_cross = z[i-1] + frac * (z[i] - z[i-1])
+            crossings.append((np.mod(x_cross, 2*np.pi), z_cross))
+
+    x_crossings, z_crossings = zip(*crossings) if crossings else ([], [])
+    return np.array(x_crossings), np.array(z_crossings)
+
+def plot_poincare_section(x_crossings, z_crossings):
+    '''
+    Plot the Poincaré section in x-z plane
+    '''
+    plt.figure(figsize=(8, 6))
+    plt.plot(x_crossings, z_crossings, 'k.', markersize=3)
+    plt.xlabel("x (mod 2π)")
+    plt.ylabel("z")
+    plt.title("Poincaré Section at y ≡ 0 (mod 2π)")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
 # =============== HOVEDPROGRAM ===============
 if __name__ == "__main__":
-    print("PARTIKKELBANE PÅ TORUS")
+    print("Particle trajectory for first order")
     print("="*40)
     
-    # 1. Løs ligningssystemet for c1 og c2
-    print("\nLøser for c1 og c2...")
+    # 1. Solve for c1 and c2
+    print('Solve for c1 and c2...')
     sol = root(system_to_solve, [1.0, 1.0], method='hybr')
     
     if not sol.success:
-        print(f"Feil: {sol.message}")
+        print(f'Error: {sol.message}')
         exit()
     
     c1, c2 = sol.x
-    print(f"Løsning: c1 = {c1:.4f}, c2 = {c2:.4f}")
+    print(f'Solution: c1 = {c1:.4f}, c2 = {c2:.4f}')
     
-    # 2. Simuler partikkelbane
-    print("\nSimulerer partikkelbane...")
-    x0, y0, z0 = np.pi/2, np.pi/2, 0.5  # Startposisjon
+    # 2. Simulate particle trajectory
+    print('Simulate particle trajectory...')
+    x0, y0, z0 = np.pi/2, np.pi/2, 0.5          # Initial position  
     
     trajectory_sol = solve_particle_trajectory(x0, y0, z0, c1, c2, t_span)
     
     if not trajectory_sol.success:
-        print(f"Feil under simulering: {trajectory_sol.message}")
+        print(f'Error: {trajectory_sol.message}')
         exit()
     
-    # 3. Analyser og plott
+    # 3. Analyze and plot the trajectory
     analyze_trajectory(trajectory_sol)
        
-    print("\nPlotter 2π-visualisering...")
+    print('Plotting trajectory...')
     plot_mod2pi_trajectory(trajectory_sol)
-    
-    print("\nFerdig!")
 
-"""
+    # 4. Find Poincaré crossings
+    print('Computing Poincaré crossings...')
+    x_cross, z_cross = find_poincare_crossings(trajectory_sol)
+    print('Plotting Poincaré section...')
+    plot_poincare_section(x_cross, z_cross)
+
+    print('Done!')
+
+
 # -------------- SECOND ORDER ----------------
+"""
+
 # notater fra hva Douglas foreslår
 
 def u3_hat_order2 (eta_hat_order2 ):
